@@ -28,15 +28,17 @@ exports.createUrl = async (req, res) => {
   try {
     let longUrl = req.body.longUrl;
 
-    if(longUrl.indexOf("https")==-1) longUrl=longUrl.replace("http","https")
-
-    longUrl = longUrl.trim()
+   
 
     if (Object.keys(req.body).length == 0 || longUrl == "") {
         return res.status(400).send({ status: false, message: "Please enter mendatory url" });
       }
 
-    if (!isValidUrl.isUri(longUrl)) {
+      if(longUrl.indexOf("https")==-1) longUrl=longUrl.replace("http","https")
+
+      longUrl = longUrl.trim()
+
+    if (!isValidUrl.isUri(longUrl) || !longUrl.includes("//")) {
         return res.status(400).send({ status: false, message: "Url is not valid" });
     }
 
@@ -55,16 +57,14 @@ exports.createUrl = async (req, res) => {
     if (isUrlExistInCache) {
       isUrlExistInCache=JSON.parse(isUrlExistInCache)
 
-      return res.status(200).send({status:true, data:isUrlExistInCache})
+      return res.status(200).send({status:true,data:isUrlExistInCache})
     }
 
-    let isUrlExistInDB = await urlModel.findOne({ longUrl: longUrl }).select({_id:0, __v:0});
-    
-    if (isUrlExistInDB) {
-      await SET_ASYNC(`${longUrl}`, 86400, JSON.stringify(isUrlExistInDB));
-      return res.status(200).send({ status: true, data : isUrlExistInDB });
-    }
-    
+    let  isUrlExistInDB= await urlModel.findOne({longUrl:longUrl})
+if(isUrlExistInDB){
+     await SET_ASYNC(`${longUrl}`,24*3600,JSON.stringify(isUrlExistInDB))
+     return res.status(200).send({status:true,data:isUrlExistInDB})
+}
     let urlCode = shortId.generate().toLowerCase();
     
     let shortUrl = "http://localhost:3000/" + urlCode;
@@ -77,7 +77,7 @@ exports.createUrl = async (req, res) => {
 
     await urlModel.create(newObj);
 
-    await SET_ASYNC(`${longUrl}`, 86400, JSON.stringify(newObj))
+
     
     return res.status(201).send({ status: true, data: newObj });
     
@@ -117,3 +117,8 @@ exports.getUrl = async (req, res) => {
     return res.status(500).send({ status: false, error: error.message });
   }
 };
+
+
+
+
+

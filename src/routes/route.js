@@ -6,7 +6,7 @@ router.post("/url/shorten", urlController.createUrl);
 
 router.get("/:urlCode", urlController.getUrl);
 
-router.all('/*',function (res ,res){
+router.all('/*',function (req ,res){
     res.status(400).send({status :false ,msg:"Please send correct url"})
 })
 
