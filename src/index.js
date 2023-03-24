@@ -2,9 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const route = require("./routes/route");
 const app = express();
-const port = process.env.PORT;
 
-app.use(express.json());
+// const port = process.env.PORT;
+// app.use(express.json());
 
 mongoose.set("strictQuery", true);
 
@@ -21,6 +21,6 @@ mongoose.connect(
 
 app.use("/", route);
 
-app.listen(port || 3000, () => {
-  console.log(`Server is running on port ${port || 3000}`);
+app.listen(3000, () => {
+  console.log(`Server is running on port ${3000}`);
 });
